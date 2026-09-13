@@ -5,7 +5,6 @@ from app.db.database import get_db
 from app.schemas.task import TaskCreate, TaskResponse, TaskUpdate
 from app.services import task_service
 
-
 router = APIRouter()
 
 
@@ -38,6 +37,7 @@ def update_task(
 ):
     return task_service.update_task(db, task_id, task)
 
+
 @router.patch("/tasks/{task_id}", response_model=TaskResponse)
 def patch_task(
     task_id: int,
@@ -45,6 +45,7 @@ def patch_task(
     db: Session = Depends(get_db),
 ):
     return task_service.patch_task(db, task_id, task)
+
 
 @router.delete("/tasks/{task_id}")
 def delete_task(

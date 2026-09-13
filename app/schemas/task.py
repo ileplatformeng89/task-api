@@ -6,6 +6,7 @@
 
 from pydantic import BaseModel
 
+
 # Clases
 class TaskCreate(BaseModel):
     title: str
@@ -13,9 +14,11 @@ class TaskCreate(BaseModel):
     completed: bool = False
     priority: int = 1
 
+
 # TaskResponse hereda a TaskCreate, tiene todo lo que tiene TaskCreate, mas id
 class TaskResponse(TaskCreate):
     id: int
+
 
 class TaskUpdate(BaseModel):
     title: str | None = None

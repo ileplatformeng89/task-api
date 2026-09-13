@@ -13,6 +13,10 @@ services:
     secrets:
       - db_password
 
+    volumes:
+      - .:/opt/app
+      - api_venv:/opt/app/.venv
+
     depends_on:
       db:
         condition: service_healthy
@@ -51,3 +55,4 @@ secrets:
 
 volumes:
   postgres_data:
+  api_venv:

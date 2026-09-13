@@ -35,9 +35,8 @@ def update_task(
 ) -> Task:
     task = get_task_or_404(db, task_id)
 
-    task.title = task_data.title
-    task.description = task_data.description
-    task.completed = task_data.completed
+    for field, value in task_data.model_dump().items():
+        setattr(task, field, value)
 
     db.commit()
     db.refresh(task)
@@ -50,6 +49,7 @@ def delete_task(db: Session, task_id: int) -> None:
 
     db.delete(task)
     db.commit()
+
 
 def patch_task(
     db: Session,
