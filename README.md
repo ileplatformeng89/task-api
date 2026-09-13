@@ -41,6 +41,9 @@ persistence models, and database configuration.
 
 ``` text
 tasks-api/
+├── .devcontainer/
+│   ├── Dockerfile
+│   └── devcontainer.json
 ├── app/
 │   ├── api/
 │   │   └── routes/
@@ -426,6 +429,164 @@ secret-management solution such as:
 
 A Kubernetes deployment can integrate these systems using a solution
 such as External Secrets Operator.
+
+## Dev Container
+
+The project provides a reproducible development environment using
+[Dev Containers](https://containers.dev/).
+
+The goal is to minimize the tooling developers need to install directly on
+their machines and ensure that everyone works with compatible versions of the
+development tools.
+
+The Dev Container includes:
+
+- Python 3.14
+- uv
+- PostgreSQL client
+- Docker CLI
+- Docker Compose
+- Ruff
+- pytest
+- VS Code/Cursor Python tooling
+
+The configuration lives in:
+
+```text
+.devcontainer/
+├── Dockerfile
+└── devcontainer.json
+```
+
+### Open the development environment
+
+Open the repository in VS Code or Cursor and run:
+
+```text
+Dev Containers: Reopen in Container
+```
+
+The container will be built automatically and `uv sync --frozen` will install
+the dependencies defined by `pyproject.toml` and `uv.lock`.
+
+Once inside the container, verify the environment with:
+
+```bash
+python --version
+uv --version
+psql --version
+docker --version
+docker compose version
+```
+
+### Development workflow
+
+The same developer interface is available both from the host and from the
+Dev Container:
+
+```bash
+make up
+make migrate
+make test
+make coverage
+make lint
+make format
+make quality
+```
+
+This allows local development and CI/CD to reuse the same commands instead of
+maintaining separate workflows.
+
+### Docker architecture
+
+The Dev Container uses Docker-outside-of-Docker (DooD).
+
+```text
+Developer
+    │
+    ▼
+Dev Container
+    │
+    │ Docker CLI / Docker Compose
+    ▼
+Docker Desktop daemon
+    │
+    ├── Tasks API
+    └── PostgreSQL
+```
+
+The Docker daemon remains on the host while Docker commands are executed from
+inside the Dev Container.
+
+`HOST_PROJECT_PATH` is configured automatically by the Dev Container so that
+Docker Desktop can correctly resolve host bind mounts.
+
+### Python virtual environment
+
+The `.venv` used inside the Dev Container is stored in a dedicated Docker
+volume.
+
+This prevents the macOS virtual environment from being reused inside the Linux
+development container.
+
+```text
+Host
+└── .venv             → macOS environment
+
+Dev Container
+└── .venv             → Linux environment (Docker volume)
+```
+
+### Secrets
+
+The local PostgreSQL password is stored in:
+
+```text
+secrets/db_password.txt
+```
+
+The file is excluded from Git and mounted into the application and PostgreSQL
+containers as:
+
+```text
+/run/secrets/db_password
+```
+
+The Dev Container configuration also makes the host secret path available to
+Docker Desktop when Docker Compose is executed from inside the development
+container.
+
+Docker Compose secrets are used only for local development. Production
+environments should use an external secret-management solution.
+
+### Developer experience
+
+A new developer should be able to follow this workflow:
+
+```text
+git clone
+    │
+    ▼
+Open repository
+    │
+    ▼
+Reopen in Dev Container
+    │
+    ▼
+uv sync --frozen
+    │
+    ▼
+make up
+    │
+    ▼
+make migrate
+    │
+    ▼
+make test
+```
+
+The repository therefore defines not only the application, but also the
+development environment required to work on it.
 
 ## Production / Kubernetes Roadmap
 

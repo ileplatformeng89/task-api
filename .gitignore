@@ -6,3 +6,6 @@ tasks.db
 
 secrets/*
 !secrets/.gitkeep
+
+.DS_Store
+**/.DS_Store

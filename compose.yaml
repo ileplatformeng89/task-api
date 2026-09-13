@@ -14,7 +14,7 @@ services:
       - db_password
 
     volumes:
-      - .:/opt/app
+      - ${HOST_PROJECT_PATH:-.}:/opt/app
       - api_venv:/opt/app/.venv
 
     depends_on:
@@ -51,7 +51,7 @@ services:
 
 secrets:
   db_password:
-    file: ./secrets/db_password.txt
+    file: ${HOST_PROJECT_PATH:-.}/secrets/db_password.txt
 
 volumes:
   postgres_data:
