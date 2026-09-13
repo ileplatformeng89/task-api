@@ -44,7 +44,7 @@ case "${1:-}" in
 
     tests-coverage)
         echo "Running tests with coverage"
-        exec uv run pytest --cov=app --cov-report=term-missing
+        exec uv run pytest --cov=app --cov-report=term-missing --cov-fail-under=90
         ;;
 
     unit-tests)
