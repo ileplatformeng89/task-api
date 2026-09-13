@@ -30,3 +30,50 @@ jobs:
 
       - name: Run Ruff
         run: uv run ruff check .
+
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: tasks_test
+          POSTGRES_USER: tasks_user
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_TEST_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tasks_user -d tasks_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_HOST: localhost
+      DATABASE_PORT: 5432
+      DATABASE_NAME: tasks_test
+      DATABASE_TEST_NAME: tasks_test
+      DATABASE_USER: tasks_user
+      DATABASE_PASSWORD_FILE: /tmp/db_password
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.14
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Create database password file
+        run: printf '%s' "${{ secrets.POSTGRES_TEST_PASSWORD }}" > /tmp/db_password
+
+      - name: Run tests
+        run: uv run pytest
