@@ -1,14 +1,53 @@
 services:
+  api:
+    build:
+      context: .
+      target: development
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - .env
+
+    secrets:
+      - db_password
+
+    depends_on:
+      db:
+        condition: service_healthy
+
   db:
     image: postgres:17
+
+    env_file:
+      - .env
+
     environment:
-      POSTGRES_DB: tasks
-      POSTGRES_USER: tasks_user
-      POSTGRES_PASSWORD: tasks_password
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+
+    secrets:
+      - db_password
+
     ports:
       - "5432:5432"
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
 
 volumes:
   postgres_data:

@@ -1,0 +1,21 @@
+[project]
+name = "tasks-api"
+version = "0.1.0"
+description = "REST API for task management"
+requires-python = ">=3.14"
+
+dependencies = [
+    "alembic",
+    "fastapi",
+    "psycopg[binary]",
+    "pydantic-settings",
+    "sqlalchemy",
+    "uvicorn[standard]",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
